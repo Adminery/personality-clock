@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Erfan Desktop Panel</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+  background: linear-gradient(270deg,
+    #1a1a1a,
+    #2c2c2c,
+    #5c2a2a,
+    #7f1d1d,
+    #4b5563,
+    #0f172a,
+    #1a1a1a
+  );
+  background-size: 1000% 1000%;
+  animation: bgAnimation 30s ease infinite;
+  color: #fff;
+  height: 100vh;
+  overflow: hidden;
+}
+@keyframes bgAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+    header {
+      position: fixed;
+      top: 0;
+      left: 0; right: 0;
+      background: #1e293b;
+      padding: 15px 40px;
+      box-shadow: 0 2px 10px rgba(225, 29, 72, 0.6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      display: none;
+    }
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    #profilePic {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #e11d48;
+      cursor: pointer;
+    }
+    .username-text {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    #enterBtn {
+      background: #e11d48;
+      border: none;
+      color: white;
+      padding: 10px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 17px;
+      transition: background 0.3s ease;
+    }
+    .login-form {
+      display: none;
+      position: absolute;
+      top: 80px;
+      right: 40px;
+      background: #2d2d2d;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(225,29,72,0.7);
+      z-index: 10;
+      width: 280px;
+    }
+    .login-form input,
+    .login-form button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+    }
+    .login-form input {
+      background: #444;
+      color: #fff;
+    }
+    .login-form button {
+      background: #e11d48;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 850px;
+      max-width: 90vw;
+      height: 270px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(244, 27, 117, 0.7), 0 0 20px rgba(12, 109, 255, 0.6);
+      backdrop-filter: blur(25px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 25px;
+      padding: 25px 40px;
+    }
+    .clock {
+      background: rgba(235, 0, 255, 0.11);
+      border-radius: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      max-width: 650px;
+      padding: 20px 0;
+      backdrop-filter: blur(40px);
+      box-shadow: 0 0 30px #e100ff7a;
+      direction: ltr;
+    }
+    .clock span {
+      font-size: 80px;
+      width: 110px;
+      text-align: center;
+      font-weight: 700;
+      color: #fff;
+    }
+    .calendar {
+      width: 100%;
+      max-width: 650px;
+      background: rgba(12, 109, 255, 0.3);
+      border-radius: 15px;
+      padding: 10px 30px;
+      box-shadow: 0 0 25px #0c6dff9a;
+      font-weight: 700;
+      font-size: 22px;
+      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      color: #fff;
+    }
+    .calendar div {
+      flex: 1 1 200px;
+      background: rgba(244, 27, 117, 0.3);
+      border-radius: 12px;
+      padding: 12px 15px;
+      min-width: 200px;
+    }
+    .calendar .persian {
+      background: rgba(244, 27, 117, 0.7);
+    }
+  </style>
+</head>
+<body>
+    <header id="header">
+        <div class="profile-section">
+          <img src="https://i.pravatar.cc/70" alt="Profile Picture" id="profilePic" />
+          <input type="file" id="uploadImg" accept="image/*" style="display: none;" />
+          <div class="username-text">MyName: Ery Admin</div>
+        </div>
+      </header>
+      
+      <button id="enterBtn">Enter</button>
+      
+      <div class="login-form" id="loginForm">
+        <input type="text" id="userInput" placeholder="Username" />
+        <input type="password" id="passInput" placeholder="Password" />
+        <button id="loginBtn">Login</button>
+      </div>
+      
+      <div class="container" id="clockContainer">
+        <div class="clock">
+          <span id="hrs">00</span><span>:</span>
+          <span id="min">00</span><span>:</span>
+          <span id="sec">00</span>
+        </div>
+      
+        <div class="calendar">
+          <div class="persian" id="persianDate">۱۴۰۴/۰۲/۲۹</div>
+          <div id="weekDay">دوشنبه</div>
+          <div id="weekDayEnglish">Monday</div>
+          <div id="gregorianDate">2025-05-19</div>
+        </div>
+      </div>
+      
+      <script>
+        const enterBtn = document.getElementById("enterBtn");
+        const loginForm = document.getElementById("loginForm");
+        const loginBtn = document.getElementById("loginBtn");
+        const header = document.getElementById("header");
+        const clockContainer = document.getElementById("clockContainer");
+        const uploadImg = document.getElementById("uploadImg");
+        const profilePic = document.getElementById("profilePic");
+      
+        // باز شدن انتخاب فایل با کلیک روی عکس
+        profilePic.addEventListener("click", () => {
+          uploadImg.click();
+        });
+      
+        // ذخیره عکس در localStorage
+        uploadImg.addEventListener("change", function () {
+          const file = this.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const base64Image = e.target.result;
+              profilePic.src = base64Image;
+              localStorage.setItem("profileImage", base64Image);
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      
+        // بازیابی عکس از localStorage
+        window.addEventListener("DOMContentLoaded", () => {
+          const savedImage = localStorage.getItem("profileImage");
+          if (savedImage) {
+            profilePic.src = savedImage;
+          }
+        });
+      
+        enterBtn.addEventListener("click", () => {
+          loginForm.style.display = "block";
+        });
+      
+        loginBtn.addEventListener("click", () => {
+          const username = document.getElementById("userInput").value;
+          const password = document.getElementById("passInput").value;
+          if (username === "Ery Admin" && password === "ery1234") {
+            loginForm.style.display = "none";
+            enterBtn.style.display = "none";
+            header.style.display = "flex";
+            clockContainer.style.display = "flex";
+            updateDates();
+          } else {
+            alert("نام کاربری یا رمز عبور اشتباه است!");
+          }
+        });
+      
+        // ساعت
+        setInterval(() => {
+          const date = new Date();
+          document.getElementById("hrs").textContent = String(date.getHours()).padStart(2, '0');
+          document.getElementById("min").textContent = String(date.getMinutes()).padStart(2, '0');
+          document.getElementById("sec").textContent = String(date.getSeconds()).padStart(2, '0');
+        }, 1000);
+      
+        // تاریخ‌ها
+        function updateDates() {
+          const now = new Date();
+          const persianDate = now.toLocaleDateString('fa-IR');
+          const weekdayFa = now.toLocaleDateString('fa-IR', { weekday: 'long' });
+          const gregDate = now.toISOString().split('T')[0];
+          const weekdayEn = now.toLocaleDateString('en-US', { weekday: 'long' });
+      
+          document.getElementById("persianDate").textContent = persianDate;
+          document.getElementById("weekDay").textContent = weekdayFa;
+          document.getElementById("gregorianDate").textContent = gregDate;
+          document.getElementById("weekDayEnglish").textContent = weekdayEn;
+        }
+      </script>
+      </body>
+      </html>

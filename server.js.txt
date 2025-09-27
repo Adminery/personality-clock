@@ -1,0 +1,88 @@
+// server.js
+// شبیه‌ساز آموزشی — سرور لوکال با WebSocket برای داشبورد
+const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
+const path = require('path');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+const PORT = 3000;
+
+// serve static dashboard
+app.use('/', express.static(path.join(__dirname, 'public')));
+
+// simple ping endpoint that will be "هدف" شبیه‌ساز
+app.get('/ping', (req, res) => {
+  const ip = req.socket.remoteAddress || req.ip || 'unknown';
+  recordRequest(ip, req.path);
+  res.json({ ok: true, time: Date.now(), ip });
+});
+
+// ---- In-memory stats ----
+let totalRequests = 0;
+const perSecondBuckets = []; // circular record of last N seconds
+const LAST_SECONDS = 60;
+for (let i = 0; i < LAST_SECONDS; i++) perSecondBuckets.push(0);
+let bucketIndex = 0;
+const recentIPs = []; // keep last N ip strings
+const recentLogs = []; // keep last N logs
+const MAX_LOGS = 500;
+
+function recordRequest(ip, path) {
+  totalRequests++;
+  perSecondBuckets[bucketIndex] += 1;
+  recentIPs.unshift({ ip, time: Date.now() });
+  if (recentIPs.length > 100) recentIPs.pop();
+  recentLogs.unshift({ ip, path, time: new Date().toISOString() });
+  if (recentLogs.length > MAX_LOGS) recentLogs.pop();
+}
+
+// tick every second to rotate bucket
+setInterval(() => {
+  bucketIndex = (bucketIndex + 1) % LAST_SECONDS;
+  perSecondBuckets[bucketIndex] = 0;
+}, 1000);
+
+// WebSocket: broadcast stats periodically
+function buildStats() {
+  // compute requests per second (average over last 5s and last 1s)
+  const last1 = perSecondBuckets[(bucketIndex + LAST_SECONDS) % LAST_SECONDS];
+  const last5 = perSecondBuckets.reduce((s, v, i) => {
+    // take last 5 values
+    const idx = (bucketIndex - i + LAST_SECONDS) % LAST_SECONDS;
+    if (i < 5) return s + perSecondBuckets[idx];
+    return s;
+  }, 0);
+  const rps1 = last1;
+  const rps5 = Math.round(last5 / Math.min(5, LAST_SECONDS));
+  return {
+    totalRequests,
+    rps1,
+    rps5,
+    recentIPs,
+    recentLogs: recentLogs.slice(0, 50),
+    timestamp: Date.now(),
+  };
+}
+
+setInterval(() => {
+  const payload = JSON.stringify({ type: 'stats', data: buildStats() });
+  wss.clients.forEach((c) => {
+    if (c.readyState === WebSocket.OPEN) c.send(payload);
+  });
+}, 500); // every 500ms
+
+// On WS connection, send immediate snapshot
+wss.on('connection', (ws) => {
+  ws.send(JSON.stringify({ type: 'stats', data: buildStats() }));
+});
+
+// Start server
+server.listen(PORT, () => {
+  console.log(`Local sim server running: http://localhost:${PORT}/`);
+  console.log(`Ping endpoint: http://localhost:${PORT}/ping`);
+  console.log(`Open the dashboard (index.html) in the browser to watch live stats.`);
+});
